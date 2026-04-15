@@ -2,7 +2,20 @@
   "name": "@whatsapp-crm/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "dev": "pnpm run dev:web & pnpm run dev:api",
+    "dev:web": "pnpm --filter @whatsapp-crm/web dev",
+    "dev:api": "pnpm --filter @whatsapp-crm/api dev",
+    "build": "pnpm run build:web && pnpm run build:api",
+    "build:web": "pnpm --filter @whatsapp-crm/web build",
+    "build:api": "pnpm --filter @whatsapp-crm/api build",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:rebuild": "docker-compose up --build",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up --build"
+  },
   "private": true,
   "dependencies": {},
   "devDependencies": {

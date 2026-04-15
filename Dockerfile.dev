@@ -1,0 +1,29 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy workspace files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY tsconfig.base.json tsconfig.json ./
+COPY nx.json ./
+
+# Copy app files
+COPY apps/api ./apps/api
+COPY apps/web ./apps/web
+COPY packages ./packages
+
+# Copy startup script
+COPY start-dev.sh /app/start-dev.sh
+RUN chmod +x /app/start-dev.sh
+
+# Install dependencies (including dev dependencies)
+RUN pnpm install --frozen-lockfile
+
+# Expose ports
+EXPOSE 3000 8080 5173
+
+# Start both services in development mode
+CMD ["/app/start-dev.sh"]

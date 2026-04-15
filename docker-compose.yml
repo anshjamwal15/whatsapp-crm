@@ -1,0 +1,30 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: whatsapp-crm-app
+    ports:
+      - "3000:3000"
+      - "5173:5173"
+      - "8080:8080"
+    environment:
+      - NODE_ENV=development
+      - PORT=3000
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - ./apps/web/src:/app/apps/web/src
+      - ./packages:/app/packages
+    restart: unless-stopped
+    networks:
+      - whatsapp-crm
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 5s
+
+networks:
+  whatsapp-crm:
+    driver: bridge

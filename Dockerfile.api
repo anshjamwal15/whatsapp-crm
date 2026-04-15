@@ -1,0 +1,37 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install pnpm
+RUN npm install -g pnpm
+
+# Copy workspace files
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY tsconfig.base.json tsconfig.json ./
+COPY nx.json ./
+
+# Copy app files
+COPY apps/api ./apps/api
+COPY apps/web ./apps/web
+COPY packages ./packages
+
+# Copy startup script
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# Install dependencies
+RUN pnpm install --frozen-lockfile
+
+# Build both API and Web
+RUN pnpm --filter @whatsapp-crm/api build
+RUN pnpm --filter @whatsapp-crm/web build
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+
+# Expose ports
+EXPOSE 3000 8080
+
+# Start both services
+CMD ["/app/start.sh"]
