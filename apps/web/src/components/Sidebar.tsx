@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { LayoutGrid, Mail, Users, Zap, BarChart3, HelpCircle, Plus, ChevronDown } from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
+import { LayoutGrid, Mail, Users, Zap, BarChart3, HelpCircle, Plus, ChevronDown, LogOut } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks';
 
 interface SidebarItem {
   id: string;
@@ -61,7 +62,14 @@ export const Sidebar = ({
   className = '',
 }: SidebarProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const isActive = (href: string) => {
     return location.pathname === href || location.pathname.startsWith(href + '/');
@@ -150,6 +158,20 @@ export const Sidebar = ({
         >
           <HelpCircle className="w-4 h-4 flex-shrink-0" />
           {!isCollapsed && <span className="text-sm font-medium">Help Center</span>}
+        </button>
+
+        {/* Logout Button */}
+        <button
+          onClick={handleLogout}
+          className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+            isCollapsed
+              ? 'justify-center'
+              : 'justify-start'
+          } text-gray-700 hover:bg-red-50 hover:text-red-600`}
+          title={isCollapsed ? 'Logout' : undefined}
+        >
+          <LogOut className="w-4 h-4 flex-shrink-0" />
+          {!isCollapsed && <span className="text-sm font-medium">Logout</span>}
         </button>
       </div>
 
