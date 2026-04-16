@@ -1,4 +1,4 @@
-import { useIsAuthenticated, useUser } from '../hooks';
+import { useIsAuthenticated, useUser } from '@/hooks';
 
 /**
  * Example component showing authentication status

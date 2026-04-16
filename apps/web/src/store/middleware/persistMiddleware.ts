@@ -8,7 +8,7 @@
  */
 
 import { Middleware } from '@reduxjs/toolkit';
-import { RootState } from '../store';
+import { RootState } from './store.js';
 
 const STORAGE_KEY = 'whatsapp-crm-auth';
 

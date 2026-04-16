@@ -2,7 +2,17 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "react-jsx",
-    "lib": ["ES2020", "DOM", "DOM.Iterable"]
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@/hooks": ["./src/hooks/index.ts"],
+      "@/store": ["./src/store/index.ts"],
+      "@/components": ["./src/components/index.ts"],
+      "@/features/auth": ["./src/features/auth/index.ts"],
+      "@/features/home": ["./src/features/home/index.ts"],
+      "@shared": ["../../packages/shared/src/types/user.ts"]
+    }
   },
   "include": ["src", "../../packages/shared/src"],
   "exclude": ["node_modules"]

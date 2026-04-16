@@ -1,4 +1,4 @@
-import { useUser, useAuth } from '../hooks';
+import { useUser, useAuth } from '@/hooks';
 
 /**
  * Example component showing how to use global user state

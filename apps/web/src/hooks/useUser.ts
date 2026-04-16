@@ -1,5 +1,4 @@
-import { useAppSelector } from '../store/hooks';
-import { selectUser, selectIsAuthenticated } from '../store/selectors/authSelectors';
+import { useAppSelector, selectUser, selectIsAuthenticated } from '@/store';
 import type { User } from '@shared';
 
 /**

@@ -1,6 +1,4 @@
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { login, signup, logout, resetPassword } from '../store/slices/authSlice';
-import { selectUser, selectIsLoading, selectError, selectIsAuthenticated } from '../store/selectors/authSelectors';
+import { useAppDispatch, useAppSelector, selectUser, selectIsLoading, selectError, selectIsAuthenticated, login, signup, logout, resetPassword } from '@/store';
 import type { User } from '@shared';
 
 export interface AuthContextType {

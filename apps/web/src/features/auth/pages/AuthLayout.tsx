@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../hooks/useAuth';
-import { Login } from './Login';
-import { Signup } from './Signup';
+import { useAuth } from '@/hooks';
+import { Login } from './Login.js';
+import { Signup } from './Signup.js';
 
 type AuthMode = 'login' | 'signup';
 

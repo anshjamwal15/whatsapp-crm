@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
-import { useAppSelector } from '../store/hooks';
-import { selectUser, selectIsLoading } from '../store/selectors/authSelectors';
+import { useAppSelector } from '@/store';
+import { selectUser, selectIsLoading } from '@/store';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
