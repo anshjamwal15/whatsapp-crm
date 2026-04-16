@@ -1,12 +1,14 @@
 import { Navigate } from 'react-router-dom';
-import { useAuthContext } from '../context/AuthContext';
+import { useAppSelector } from '../store/hooks';
+import { selectUser, selectIsLoading } from '../store/selectors/authSelectors';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { user, isLoading } = useAuthContext();
+  const user = useAppSelector(selectUser);
+  const isLoading = useAppSelector(selectIsLoading);
 
   if (isLoading) {
     return (
@@ -17,7 +19,7 @@ export const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/auth" replace />;
   }
 
   return <>{children}</>;

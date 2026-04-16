@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useAuth } from '../../../hooks/useAuth';
 
 export const ResetPassword = () => {
   const [searchParams] = useSearchParams();
@@ -7,44 +8,38 @@ export const ResetPassword = () => {
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [error, setError] = useState('');
+  const [localError, setLocalError] = useState('');
   const [success, setSuccess] = useState('');
-  const [loading, setLoading] = useState(false);
+  const { resetPassword, isLoading, error } = useAuth();
 
   const token = searchParams.get('token');
 
   const handleRequestReset = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setLocalError('');
     setSuccess('');
-    setLoading(true);
 
     try {
-      // TODO: Implement password reset request API call
-      console.log('Reset request for:', email);
+      await resetPassword(email);
       setSuccess('Check your email for password reset instructions');
       setEmail('');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset email');
-    } finally {
-      setLoading(false);
+      console.error('Reset request failed:', err);
     }
   };
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setLocalError('');
     setSuccess('');
 
     if (newPassword !== confirmPassword) {
-      setError('Passwords do not match');
+      setLocalError('Passwords do not match');
       return;
     }
 
-    setLoading(true);
-
     try {
-      // TODO: Implement password reset API call with token
+      // TODO: Implement password reset with token
       console.log('Reset password with token:', token);
       setSuccess('Password reset successfully. You can now login.');
       setNewPassword('');
@@ -53,11 +48,11 @@ export const ResetPassword = () => {
         window.location.href = '/auth';
       }, 2000);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to reset password');
-    } finally {
-      setLoading(false);
+      console.error('Reset password failed:', err);
     }
   };
+
+  const displayError = localError || error;
 
   if (token) {
     return (
@@ -69,9 +64,9 @@ export const ResetPassword = () => {
             </h2>
           </div>
           <form className="mt-8 space-y-6" onSubmit={handleResetPassword}>
-            {error && (
+            {displayError && (
               <div className="rounded-md bg-red-50 p-4">
-                <p className="text-sm font-medium text-red-800">{error}</p>
+                <p className="text-sm font-medium text-red-800">{displayError}</p>
               </div>
             )}
             {success && (
@@ -117,10 +112,10 @@ export const ResetPassword = () => {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={isLoading}
                 className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
               >
-                {loading ? 'Resetting...' : 'Reset Password'}
+                {isLoading ? 'Resetting...' : 'Reset Password'}
               </button>
             </div>
           </form>
@@ -141,9 +136,9 @@ export const ResetPassword = () => {
           </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleRequestReset}>
-          {error && (
+          {displayError && (
             <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm font-medium text-red-800">{error}</p>
+              <p className="text-sm font-medium text-red-800">{displayError}</p>
             </div>
           )}
           {success && (
@@ -171,10 +166,10 @@ export const ResetPassword = () => {
           <div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {loading ? 'Sending...' : 'Send Reset Link'}
+              {isLoading ? 'Sending...' : 'Send Reset Link'}
             </button>
           </div>
 

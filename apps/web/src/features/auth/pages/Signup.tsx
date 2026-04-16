@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface SignupProps {
   onSwitchToLogin?: () => void;
@@ -12,9 +13,9 @@ export const Signup = ({ onSwitchToLogin }: SignupProps) => {
     password: '',
     confirmPassword: '',
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [localError, setLocalError] = useState('');
   const navigate = useNavigate();
+  const { signup, isLoading, error } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -23,29 +24,22 @@ export const Signup = ({ onSwitchToLogin }: SignupProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setLocalError('');
 
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+      setLocalError('Passwords do not match');
       return;
     }
 
-    setLoading(true);
-
     try {
-      // TODO: Implement signup API call
-      console.log('Signup attempt:', {
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-      });
+      await signup(formData.name, formData.email, formData.password);
       navigate('/login');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Signup failed');
-    } finally {
-      setLoading(false);
+      console.error('Signup failed:', err);
     }
   };
+
+  const displayError = localError || error;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -56,9 +50,9 @@ export const Signup = ({ onSwitchToLogin }: SignupProps) => {
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
+          {displayError && (
             <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm font-medium text-red-800">{error}</p>
+              <p className="text-sm font-medium text-red-800">{displayError}</p>
             </div>
           )}
           <div className="space-y-4">
@@ -131,10 +125,10 @@ export const Signup = ({ onSwitchToLogin }: SignupProps) => {
           <div>
             <button
               type="submit"
-              disabled={loading}
+              disabled={isLoading}
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
             >
-              {loading ? 'Creating account...' : 'Sign up'}
+              {isLoading ? 'Creating account...' : 'Sign up'}
             </button>
           </div>
 

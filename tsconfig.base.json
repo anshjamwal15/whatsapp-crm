@@ -16,6 +16,10 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@whatsapp-crm/source"]
+    "customConditions": ["@whatsapp-crm/source"],
+    "baseUrl": ".",
+    "paths": {
+      "@shared": ["packages/shared/src"]
+    }
   }
 }

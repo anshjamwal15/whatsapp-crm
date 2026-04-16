@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../hooks/useAuth';
 import { Login } from './Login';
 import { Signup } from './Signup';
 
@@ -6,6 +8,14 @@ type AuthMode = 'login' | 'signup';
 
 export const AuthLayout = () => {
   const [mode, setMode] = useState<AuthMode>('login');
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50">
