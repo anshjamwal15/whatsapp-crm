@@ -1,10 +1,16 @@
 import 'dotenv/config';
 import express, { Express, Request, Response } from 'express';
+import cors from 'cors';
 import { errorHandler } from './middlewares';
+import { corsOptionsDev } from './config/cors';
 import apiRoutes from './routes';
 
 const app: Express = express();
 const PORT: number = parseInt(process.env.PORT ?? '3000', 10);
+const NODE_ENV = process.env.NODE_ENV || 'development';
+
+// CORS Middleware
+app.use(cors(corsOptionsDev));
 
 // Middleware
 app.use(express.json());
@@ -39,6 +45,8 @@ const server = app.listen(PORT, async (): Promise<void> => {
     process.exit(1);
   }
   console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Environment: ${NODE_ENV}`);
+  console.log(`CORS enabled for development`);
 });
 
 // Graceful shutdown

@@ -8,7 +8,7 @@
  */
 
 import { Middleware } from '@reduxjs/toolkit';
-import { RootState } from './store.js';
+import { RootState } from '../store.js';
 
 const STORAGE_KEY = 'whatsapp-crm-auth';
 
@@ -19,7 +19,14 @@ export const loadPersistedAuth = () => {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      return JSON.parse(stored);
+      const parsed = JSON.parse(stored);
+      return {
+        user: parsed.user || null,
+        isLoading: false,
+        error: null,
+        isAuthenticated: !!parsed.user,
+        accessToken: parsed.accessToken || null,
+      };
     }
   } catch (error) {
     console.error('Failed to load persisted auth:', error);
@@ -37,7 +44,15 @@ export const persistMiddleware: Middleware = (store) => (next) => (action) => {
   // Persist auth state whenever it changes
   if (action.type.startsWith('auth/')) {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.auth));
+      const authState = state.auth;
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          user: authState.user,
+          accessToken: authState.accessToken,
+          isAuthenticated: authState.isAuthenticated,
+        })
+      );
     } catch (error) {
       console.error('Failed to persist auth state:', error);
     }

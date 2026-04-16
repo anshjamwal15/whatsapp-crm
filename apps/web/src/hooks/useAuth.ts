@@ -7,7 +7,7 @@ export interface AuthContextType {
   error: string | null;
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  signup: (name: string, email: string, password: string, phone?: string) => Promise<void>;
   logout: () => void;
   resetPassword: (email: string) => Promise<void>;
 }
@@ -27,8 +27,8 @@ export const useAuth = (): AuthContextType => {
     login: async (email: string, password: string) => {
       await dispatch(login({ email, password }));
     },
-    signup: async (name: string, email: string, password: string) => {
-      await dispatch(signup({ name, email, password }));
+    signup: async (name: string, email: string, password: string, phone?: string) => {
+      await dispatch(signup({ name, email, password, phone }));
     },
     logout: () => {
       dispatch(logout());

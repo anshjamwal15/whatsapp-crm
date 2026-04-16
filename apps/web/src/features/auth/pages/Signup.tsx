@@ -12,6 +12,7 @@ export const Signup = ({ onSwitchToLogin }: SignupProps) => {
     name: '',
     email: '',
     password: '',
+    phone: '',
   });
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
@@ -28,8 +29,8 @@ export const Signup = ({ onSwitchToLogin }: SignupProps) => {
     setLocalError('');
 
     try {
-      await signup(formData.name, formData.email, formData.password);
-      navigate('/login');
+      await signup(formData.name, formData.email, formData.password, formData.phone || undefined);
+      navigate('/dashboard');
     } catch (err) {
       console.error('Signup failed:', err);
     }
@@ -98,6 +99,23 @@ export const Signup = ({ onSwitchToLogin }: SignupProps) => {
                 className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-md text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="john@nexus.com"
                 value={formData.email}
+                onChange={handleChange}
+              />
+            </div>
+
+            {/* Phone (Optional) */}
+            <div>
+              <label htmlFor="phone" className="block text-xs font-semibold text-gray-700 uppercase tracking-wide mb-2">
+                Phone (Optional)
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                autoComplete="tel"
+                className="w-full px-4 py-3 bg-blue-50 border border-blue-100 rounded-md text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                placeholder="+1 (555) 000-0000"
+                value={formData.phone}
                 onChange={handleChange}
               />
             </div>

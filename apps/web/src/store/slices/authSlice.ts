@@ -1,11 +1,13 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import type { User } from '@shared';
+import { loginAPI, signupAPI, logoutAPI } from '@/lib/api';
 
 export interface AuthState {
   user: User | null;
   isLoading: boolean;
   error: string | null;
   isAuthenticated: boolean;
+  accessToken: string | null;
 }
 
 const initialState: AuthState = {
@@ -13,6 +15,7 @@ const initialState: AuthState = {
   isLoading: false,
   error: null,
   isAuthenticated: false,
+  accessToken: null,
 };
 
 // Async thunks
@@ -23,14 +26,14 @@ export const login = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // TODO: Replace with actual API call
-      // const response = await loginAPI(email, password);
-      // return response.user;
-      console.log('Login:', { email, password });
+      const response = await loginAPI(email, password);
       return {
-        id: '1',
-        email,
-        name: 'User',
+        user: {
+          id: response.id,
+          email: response.email,
+          name: response.name,
+        },
+        accessToken: response.accessToken,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Login failed';
@@ -42,18 +45,18 @@ export const login = createAsyncThunk(
 export const signup = createAsyncThunk(
   'auth/signup',
   async (
-    { name, email, password }: { name: string; email: string; password: string },
+    { name, email, password, phone }: { name: string; email: string; password: string; phone?: string },
     { rejectWithValue }
   ) => {
     try {
-      // TODO: Replace with actual API call
-      // const response = await signupAPI(name, email, password);
-      // return response.user;
-      console.log('Signup:', { name, email, password });
+      const response = await signupAPI(name, email, password, phone);
       return {
-        id: '1',
-        email,
-        name,
+        user: {
+          id: response.id,
+          email: response.email,
+          name: response.name,
+        },
+        accessToken: response.accessToken,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Signup failed';
@@ -66,8 +69,7 @@ export const resetPassword = createAsyncThunk(
   'auth/resetPassword',
   async (email: string, { rejectWithValue }) => {
     try {
-      // TODO: Replace with actual API call
-      // await resetPasswordAPI(email);
+      // TODO: Implement reset password API
       console.log('Reset password for:', email);
       return email;
     } catch (error) {
@@ -85,7 +87,8 @@ const authSlice = createSlice({
       state.user = null;
       state.isAuthenticated = false;
       state.error = null;
-      // TODO: Clear auth tokens from storage
+      state.accessToken = null;
+      logoutAPI().catch(console.error);
     },
     clearError: (state) => {
       state.error = null;
@@ -93,6 +96,9 @@ const authSlice = createSlice({
     setUser: (state, action: PayloadAction<User>) => {
       state.user = action.payload;
       state.isAuthenticated = true;
+    },
+    setAccessToken: (state, action: PayloadAction<string>) => {
+      state.accessToken = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -104,7 +110,8 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken;
         state.isAuthenticated = true;
       })
       .addCase(login.rejected, (state, action) => {
@@ -120,7 +127,8 @@ const authSlice = createSlice({
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.user = action.payload;
+        state.user = action.payload.user;
+        state.accessToken = action.payload.accessToken;
         state.isAuthenticated = true;
       })
       .addCase(signup.rejected, (state, action) => {
@@ -144,5 +152,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError, setUser } = authSlice.actions;
+export const { logout, clearError, setUser, setAccessToken } = authSlice.actions;
 export default authSlice.reducer;
