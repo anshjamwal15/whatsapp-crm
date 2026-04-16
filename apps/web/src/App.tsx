@@ -1,9 +1,16 @@
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthLayout, ResetPassword } from './features/auth';
+
 function App() {
   return (
-    <div>
-      <h1>WhatsApp CRM</h1>
-    </div>
-  )
+    <Router>
+      <Routes>
+        <Route path="/auth" element={<AuthLayout />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/" element={<Navigate to="/auth" replace />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
