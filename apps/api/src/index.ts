@@ -1,29 +1,34 @@
 import 'dotenv/config';
-import express, { Express, Request, Response, NextFunction } from 'express';
-import { db } from './database/config';
-import { users } from './database/schema';
+import express, { Express, Request, Response } from 'express';
+import { errorHandler } from './middlewares';
+import apiRoutes from './routes';
 
 const app: Express = express();
 const PORT: number = parseInt(process.env.PORT ?? '3000', 10);
 
 // Middleware
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response): void => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// Error handling middleware
-app.use((err: Error, _req: Request, res: Response, _next: NextFunction): void => {
-  console.error('Error:', err.message);
-  res.status(500).json({ error: 'Internal Server Error' });
-});
+// API Routes
+app.use('/api', apiRoutes);
 
 // 404 handler
 app.use((_req: Request, res: Response): void => {
-  res.status(404).json({ error: 'Not Found' });
+  res.status(404).json({
+    success: false,
+    error: 'Not Found',
+    code: 'NOT_FOUND',
+  });
 });
+
+// Error handling middleware (must be last)
+app.use(errorHandler);
 
 // Start server
 const server = app.listen(PORT, async (): Promise<void> => {
