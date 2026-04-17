@@ -86,6 +86,35 @@ router.get(
 );
 
 /**
+ * GET /api/businesses/owner/workspaces
+ * Get all workspaces where user is owner
+ * Requires authentication
+ */
+router.get(
+  '/owner/workspaces',
+  authMiddleware,
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const workspaces = await businessService.getOwnerWorkspaces(req.user!.userId);
+
+      res.json({
+        success: true,
+        data: workspaces,
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({
+          success: false,
+          error: error.message,
+        });
+      } else {
+        next(error);
+      }
+    }
+  }
+);
+
+/**
  * GET /api/businesses/:businessId
  * Get a specific business
  * Requires authentication and tenant access

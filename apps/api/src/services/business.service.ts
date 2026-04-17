@@ -369,4 +369,60 @@ export const businessService = {
       return null;
     }
   },
+
+  /**
+   * Get all workspaces where user is owner
+   */
+  async getOwnerWorkspaces(userId: string): Promise<BusinessResponse[]> {
+    try {
+      const result = await db
+        .select({
+          id: businesses.id,
+          name: businesses.name,
+          slug: businesses.slug,
+          businessType: businesses.businessType,
+          ownerUserId: businesses.ownerUserId,
+          phone: businesses.phone,
+          email: businesses.email,
+          timezone: businesses.timezone,
+          country: businesses.country,
+          currency: businesses.currency,
+          logoUrl: businesses.logoUrl,
+          status: businesses.status,
+          createdAt: businesses.createdAt,
+          updatedAt: businesses.updatedAt,
+        })
+        .from(businesses)
+        .where(
+          and(
+            eq(businesses.ownerUserId, userId),
+            eq(businesses.status, 'active')
+          )
+        );
+
+      return result.map((row) =>
+        mapBusinessEntityToResponse({
+          id: row.id,
+          name: row.name,
+          slug: row.slug,
+          businessType: row.businessType,
+          ownerUserId: row.ownerUserId,
+          phone: row.phone,
+          email: row.email,
+          timezone: row.timezone,
+          country: row.country,
+          currency: row.currency,
+          logoUrl: row.logoUrl,
+          status: row.status,
+          createdAt: row.createdAt,
+          updatedAt: row.updatedAt,
+        })
+      );
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to get owner workspaces: ${error.message}`);
+      }
+      throw error;
+    }
+  },
 };
