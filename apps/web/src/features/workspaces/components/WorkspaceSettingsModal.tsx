@@ -1,5 +1,10 @@
 import { X, Info, Users, RefreshCw } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { SuccessBadge } from '../../../components/SuccessBadge.js';
+import { ErrorBadge } from '../../../components/ErrorBadge.js';
+import { getAccessToken } from '../../../lib/api.js';
+
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:3000/api';
 
 interface TeamMember {
   id: string;
@@ -25,7 +30,7 @@ export const WorkspaceSettingsModal = ({
   const [workspaceName, setWorkspaceName] = useState(initialWorkspaceName);
   const [plan, setPlan] = useState('Enterprise');
   const [liveSyncEnabled, setLiveSyncEnabled] = useState(true);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([
+  const [teamMembers] = useState<TeamMember[]>([
     {
       id: '1',
       name: 'Alex Rivera',
@@ -47,6 +52,10 @@ export const WorkspaceSettingsModal = ({
   ]);
 
   const [hasChanges, setHasChanges] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuccessBadge, setShowSuccessBadge] = useState(false);
+  const [showErrorBadge, setShowErrorBadge] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     setWorkspaceName(initialWorkspaceName);
@@ -59,17 +68,65 @@ export const WorkspaceSettingsModal = ({
 
   if (!isOpen) return null;
 
-  const handleSave = () => {
-    // TODO: Implement save functionality
-    console.log('Saving workspace settings:', {
-      workspaceId,
-      workspaceName,
-      plan,
-      liveSyncEnabled,
-      teamMembers,
-    });
-    setHasChanges(false);
-    onClose();
+  const handleSave = async () => {
+    if (!hasChanges) {
+      onClose();
+      return;
+    }
+
+    setIsLoading(true);
+    setShowSuccessBadge(false);
+    setShowErrorBadge(false);
+    setErrorMessage('');
+
+    try {
+      const token = getAccessToken();
+      if (!token) {
+        throw new Error('No authentication token found');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/businesses/${workspaceId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: workspaceName,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || `Failed to update workspace: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      if (result.success) {
+        setShowSuccessBadge(true);
+        setHasChanges(false);
+        
+        // Auto-hide success badge and close modal after 2 seconds
+        setTimeout(() => {
+          setShowSuccessBadge(false);
+          onClose();
+        }, 2000);
+      } else {
+        throw new Error(result.message || 'Failed to update workspace');
+      }
+    } catch (err) {
+      console.error('Error updating workspace:', err);
+      setErrorMessage(err instanceof Error ? err.message : 'Failed to update workspace');
+      setShowErrorBadge(true);
+      
+      // Auto-hide error badge after 5 seconds
+      setTimeout(() => {
+        setShowErrorBadge(false);
+      }, 5000);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleDiscard = () => {
@@ -128,6 +185,18 @@ export const WorkspaceSettingsModal = ({
             </button>
           </div>
         </div>
+
+        {/* Success/Error Badges */}
+        {showSuccessBadge && (
+          <div className="px-8 pt-6">
+            <SuccessBadge message="Workspace updated successfully!" />
+          </div>
+        )}
+        {showErrorBadge && (
+          <div className="px-8 pt-6">
+            <ErrorBadge message={errorMessage} />
+          </div>
+        )}
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-8 py-6">
@@ -281,9 +350,17 @@ export const WorkspaceSettingsModal = ({
             </button>
             <button
               onClick={handleSave}
-              className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+              disabled={isLoading || !hasChanges}
+              className="px-6 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm disabled:bg-gray-400 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              SAVE WORKSPACE
+              {isLoading ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  SAVING...
+                </>
+              ) : (
+                'SAVE WORKSPACE'
+              )}
             </button>
           </div>
         </div>
