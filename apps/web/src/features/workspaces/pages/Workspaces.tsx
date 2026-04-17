@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AppLayout } from '../../../layouts/AppLayout.js';
 import { getAccessToken } from '../../../lib/api.js';
+import { WorkspaceSettingsModal } from '../components/WorkspaceSettingsModal.js';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:3000/api';
 
@@ -88,6 +89,8 @@ export const Workspaces = () => {
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null);
 
   useEffect(() => {
     const fetchWorkspaces = async () => {
@@ -154,8 +157,16 @@ export const Workspaces = () => {
   };
 
   const handleWorkspaceClick = (workspaceId: string) => {
-    // TODO: Implement workspace switching
-    console.log('Switch to workspace:', workspaceId);
+    const workspace = workspaces.find((ws) => ws.id === workspaceId);
+    if (workspace) {
+      setSelectedWorkspace(workspace);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedWorkspace(null);
   };
 
   return (
@@ -293,6 +304,16 @@ export const Workspaces = () => {
         )}
         </div>
       </div>
+
+      {/* Workspace Settings Modal */}
+      {selectedWorkspace && (
+        <WorkspaceSettingsModal
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          workspaceId={selectedWorkspace.id}
+          workspaceName={selectedWorkspace.name}
+        />
+      )}
     </AppLayout>
   );
 };
