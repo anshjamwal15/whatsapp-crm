@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutGrid, Mail, Users, Zap, BarChart3, HelpCircle, Plus, ChevronDown, LogOut } from 'lucide-react';
+import { LayoutGrid, Mail, Users, Zap, BarChart3, HelpCircle, Plus, ChevronDown, LogOut, Briefcase } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 
@@ -21,11 +21,18 @@ interface SidebarProps {
 }
 
 const defaultItems: SidebarItem[] = [
+  
   {
     id: 'dashboard',
     label: 'Dashboard',
     icon: <LayoutGrid className="w-5 h-5" />,
     href: '/dashboard',
+  },
+  {
+    id: 'workspaces',
+    label: 'Workspaces',
+    icon: <Briefcase className="w-5 h-5" />,
+    href: '/workspaces',
   },
   {
     id: 'inbox',

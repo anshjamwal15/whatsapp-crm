@@ -10,8 +10,10 @@
       "@/hooks": ["./src/hooks/index.ts"],
       "@/store": ["./src/store/index.ts"],
       "@/components": ["./src/components/index.ts"],
+      "@/layouts": ["./src/layouts/index.ts"],
       "@/features/auth": ["./src/features/auth/index.ts"],
       "@/features/home": ["./src/features/home/index.ts"],
+      "@/features/workspaces": ["./src/features/workspaces/index.ts"],
       "@shared": ["../../packages/shared/src/types/user.ts"]
     }
   },

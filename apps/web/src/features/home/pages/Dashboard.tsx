@@ -1,18 +1,12 @@
-import { useUser, useAuth } from '@/hooks';
-import { useEffect } from 'react';
-import { Bell, Settings, Search, Users, TrendingUp, Clock, AlertCircle } from 'lucide-react';
-import { Sidebar } from '@/components';
+import { useUser } from '@/hooks';
+import { AppLayout } from '@/layouts';
+import { Users, TrendingUp, Clock, AlertCircle } from 'lucide-react';
 
 /**
  * CRM Dashboard page
  */
 export const Dashboard = () => {
   const user = useUser();
-  const auth = useAuth();
-
-  useEffect(() => {
-    console.log("New data", auth.isAuthenticated);
-  });
 
   if (!user) {
     return (
@@ -23,43 +17,20 @@ export const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
-      <Sidebar
-        workspaceName="Precision HQ"
-        workspaceLabel="ACTIVE WORKSPACE"
-        onNewBroadcast={() => console.log('New Broadcast clicked')}
-        onHelpCenter={() => console.log('Help Center clicked')}
-      />
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col">
-        {/* Top Header */}
-        <header className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white font-bold">A</div>
-              <div>
-                <div className="text-xs text-gray-500 uppercase tracking-wide">Active Workspace</div>
-                <div className="text-sm font-semibold text-gray-900">Architect CRM</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="hidden md:flex items-center bg-gray-100 rounded-lg px-3 py-2 w-64">
-                <Search className="w-4 h-4 text-gray-400" />
-                <input type="text" placeholder="Search contacts or conversations..." className="bg-transparent ml-2 text-sm w-full outline-none" />
-              </div>
-              <Bell className="w-5 h-5 text-gray-600 cursor-pointer" />
-              <Settings className="w-5 h-5 text-gray-600 cursor-pointer" />
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">{user.name?.charAt(0).toUpperCase()}</div>
-            </div>
-          </div>
-        </header>
-
-        {/* Main Content Area */}
-        <main className="max-w-7xl mx-auto px-6 py-8 w-full">
-        {/* Dashboard Title and Actions */}
-        <div className="flex items-center justify-between mb-8">
+    <AppLayout
+      workspaceName="Architect CRM"
+      workspaceLabel="Active Workspace"
+      workspaceIcon="A"
+      onNewBroadcast={() => console.log('New Broadcast clicked')}
+      onHelpCenter={() => console.log('Help Center clicked')}
+      onNotificationClick={() => console.log('Notifications clicked')}
+      onSettingsClick={() => console.log('Settings clicked')}
+    >
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto px-6 py-8 w-full">
+          {/* Dashboard Title and Actions */}
+          <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
             <p className="text-gray-600 mt-1">Welcome back. Here's what's happening with your leads today.</p>
@@ -265,8 +236,8 @@ export const Dashboard = () => {
             <span className="text-xs text-gray-600">2 Team members live</span>
           </div>
         </div>
-        </main>
-      </div>
-    </div>
+        </div>
+      </main>
+    </AppLayout>
   );
 };

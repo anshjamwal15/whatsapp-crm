@@ -3,6 +3,7 @@ import { Provider } from 'react-redux';
 import { store } from '@/store';
 import { AuthLayout, ResetPassword } from '@/features/auth';
 import { Dashboard } from '@/features/home';
+import { Workspaces } from '@/features/workspaces';
 import { ProtectedRoute } from '@/components';
 
 function App() {
@@ -12,6 +13,14 @@ function App() {
         <Routes>
           <Route path="/auth" element={<AuthLayout />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route
+            path="/workspaces"
+            element={
+              <ProtectedRoute>
+                <Workspaces />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={
