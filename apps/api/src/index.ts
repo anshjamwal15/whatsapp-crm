@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
-import { errorHandler } from './middlewares';
+import { captureRawBody, errorHandler, errorInterceptor, networkInterceptor } from './middlewares';
 import { corsOptionsDev } from './config/cors';
 import apiRoutes from './routes';
 
@@ -13,7 +13,8 @@ const NODE_ENV = process.env.NODE_ENV || 'development';
 app.use(cors(corsOptionsDev));
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ verify: captureRawBody }));
+app.use(networkInterceptor);
 app.use(express.urlencoded({ extended: true }));
 
 // Health check endpoint
@@ -34,6 +35,7 @@ app.use((_req: Request, res: Response): void => {
 });
 
 // Error handling middleware (must be last)
+app.use(errorInterceptor);
 app.use(errorHandler);
 
 // Start server
