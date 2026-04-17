@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Building2, Users, Zap, CheckCircle2, ChevronDown, UserPlus, Download, Info, RefreshCw, LayoutDashboard, Inbox, UserPlus as UserPlusIcon, MessageSquare, ChevronRight } from 'lucide-react';
-import { useSuccessBadge } from '../../../components/index.js';
+import { Building2, Users, Zap, CheckCircle2, ChevronDown, UserPlus, Download, Info, RefreshCw, LayoutDashboard, Inbox, UserPlus as UserPlusIcon, MessageSquare, ChevronRight, Loader2 } from 'lucide-react';
+import { useSuccessBadge, useErrorBadge } from '../../../components/index.js';
+import { getAccessToken } from '../../../lib/api.js';
 
 type TeamSize = '1-5' | '6-20' | '21-50' | '50+';
 type MemberRole = 'Owner' | 'Manager' | 'Agent';
@@ -46,10 +47,14 @@ const teamSizeOptions: TeamSize[] = ['1-5', '6-20', '21-50', '50+'];
 
 const roleOptions: MemberRole[] = ['Owner', 'Manager', 'Agent'];
 
+const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:3000/api';
+
 export const WorkspaceOnboarding = () => {
   const navigate = useNavigate();
   const { showSuccess, SuccessBadgeComponent } = useSuccessBadge();
+  const { showError, ErrorBadgeComponent } = useErrorBadge();
   const [currentStep, setCurrentStep] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<OnboardingFormData>({
     businessName: '',
     category: 'Creative Agency',
@@ -109,7 +114,69 @@ export const WorkspaceOnboarding = () => {
     setFormData((prev) => ({ ...prev, teamSize: size }));
   };
 
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    // Step 1: Create business via API
+    if (currentStep === 1) {
+      try {
+        setIsLoading(true);
+        
+        const token = getAccessToken();
+        if (!token) {
+          throw new Error('No authentication token found');
+        }
+
+        // Extract timezone identifier from the full timezone string
+        // e.g., "PST (UTC-8:00) Pacific Standard Time" -> "America/Los_Angeles"
+        // For now, we'll use a default or parse it properly
+        const timezoneMap: Record<string, string> = {
+          'PST (UTC-8:00) Pacific Standard Time': 'America/Los_Angeles',
+          'EST (UTC-5:00) Eastern Standard Time': 'America/New_York',
+          'CST (UTC-6:00) Central Standard Time': 'America/Chicago',
+          'MST (UTC-7:00) Mountain Standard Time': 'America/Denver',
+        };
+        
+        const timezone = timezoneMap[formData.timezone] || 'America/New_York';
+
+        const response = await fetch(`${API_BASE_URL}/businesses`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.businessName,
+            timezone: timezone,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to create business');
+        }
+
+        const data = await response.json();
+        console.log('Business created:', data);
+
+        // Show success message
+        showSuccess('Workspace setup completed successfully!');
+        
+        // Move to next step after a short delay
+        setTimeout(() => {
+          setCurrentStep(currentStep + 1);
+          setIsLoading(false);
+        }, 1000);
+      } catch (error) {
+        setIsLoading(false);
+        console.error('Failed to create business:', error);
+        
+        // Show error badge instead of alert
+        const errorMessage = error instanceof Error ? error.message : 'Failed to create workspace. Please try again.';
+        showError(errorMessage, 'Workspace Creation Failed');
+      }
+      return;
+    }
+
+    // Other steps: proceed normally
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
       // Show success message when moving to next step
@@ -181,6 +248,9 @@ export const WorkspaceOnboarding = () => {
       {/* Success Badge - Appears on top of everything */}
       {SuccessBadgeComponent}
       
+      {/* Error Badge - Appears on top of everything */}
+      {ErrorBadgeComponent}
+      
       <div className="min-h-screen bg-gray-50 flex">
       {/* Left Sidebar */}
       <div className="w-80 bg-white border-r border-gray-200 p-8 flex flex-col">
@@ -234,17 +304,6 @@ export const WorkspaceOnboarding = () => {
             );
           })}
         </nav>
-
-        {/* Save Changes Button */}
-        {/*<div className="mt-auto">
-          <button
-            onClick={handleSaveChanges}
-            className="bg-blue-600 text-white px-16 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
-          >
-            Save Changes
-          </button>
-        </div>
-        */}
       </div>
 
       {/* Main Content */}
@@ -259,20 +318,8 @@ export const WorkspaceOnboarding = () => {
 
           {/* Main Card */}
           <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-12">
-            {currentStep === 1 && <WorkspaceSetupStep />}
-            {currentStep === 2 && <TeamAccessStep />}
-            {currentStep === 3 && <WhatsAppLinkStep />}
-            {currentStep === 4 && <FinishStep />}
-          </div>
-        </div>
-      </div>
-    </div>
-    </>
-  );
-
-  // Step 1: Workspace Setup Component
-  function WorkspaceSetupStep() {
-    return (
+            {/* Step 1: Workspace Setup */}
+            {currentStep === 1 && (
       <>
         {/* Title */}
         <div className="mb-8">
@@ -416,33 +463,42 @@ export const WorkspaceOnboarding = () => {
           <div className="flex justify-between pt-6">
             <button
               onClick={handleSkip}
-              className="text-gray-600 px-8 py-3 rounded-lg font-semibold hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              disabled={isLoading}
+              className="text-gray-600 px-8 py-3 rounded-lg font-semibold hover:text-gray-900 hover:bg-gray-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Skip for now
             </button>
             <button
               onClick={handleContinue}
-              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
+              disabled={isLoading}
+              className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Continue
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
-                />
-              </svg>
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Creating...
+                </>
+              ) : (
+                <>
+                  Continue
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 7l5 5m0 0l-5 5m5-5H6"
+                    />
+                  </svg>
+                </>
+              )}
             </button>
           </div>
         </div>
       </>
-    );
-  }
+            )}
 
-  // Step 2: Team Access Component
-  function TeamAccessStep() {
-    return (
+            {/* Step 2: Team Access */}
+            {currentStep === 2 && (
       <>
         {/* Title */}
         <div className="mb-8">
@@ -603,12 +659,10 @@ export const WorkspaceOnboarding = () => {
           </button>
         </div>
       </>
-    );
-  }
+            )}
 
-  // Step 3: WhatsApp Link Component
-  function WhatsAppLinkStep() {
-    return (
+            {/* Step 3: WhatsApp Link */}
+            {currentStep === 3 && (
       <>
         {/* Title */}
         <div className="mb-8">
@@ -753,12 +807,10 @@ export const WorkspaceOnboarding = () => {
           </button>
         </div>
       </>
-    );
-  }
+            )}
 
-  // Step 4: Finish Component
-  function FinishStep() {
-    return (
+            {/* Step 4: Finish */}
+            {currentStep === 4 && (
       <div className="text-center">
         {/* Success Icon */}
         <div className="mb-8 flex justify-center">
@@ -862,6 +914,11 @@ export const WorkspaceOnboarding = () => {
           </div>
         </div>
       </div>
-    );
-  }
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+    </>
+  );
 };

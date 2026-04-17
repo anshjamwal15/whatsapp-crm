@@ -39,7 +39,7 @@ interface Workspace {
   logoUrl?: string | null;
 }
 
-const getBusinessTypeIcon = (businessType: string): string => {
+const getBusinessTypeIcon = (businessType: string | null | undefined): string => {
   const icons: Record<string, string> = {
     service: '🛠️',
     retail: '🛍️',
@@ -50,6 +50,9 @@ const getBusinessTypeIcon = (businessType: string): string => {
     healthcare: '🏥',
     finance: '💰',
   };
+  if (!businessType) {
+    return '🏢';
+  }
   return icons[businessType.toLowerCase()] || '🏢';
 };
 
