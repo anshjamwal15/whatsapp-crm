@@ -116,6 +116,15 @@ export const WorkspaceOnboarding = () => {
     }
   };
 
+  const handleSkip = () => {
+    if (currentStep < 4) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      // Complete onboarding
+      navigate('/workspaces');
+    }
+  };
+
   const handleSaveChanges = () => {
     // TODO: Implement save changes logic
     console.log('Saving changes:', formData);
@@ -391,7 +400,13 @@ export const WorkspaceOnboarding = () => {
           </div>
 
           {/* Continue Button */}
-          <div className="flex justify-end pt-6">
+          <div className="flex justify-between pt-6">
+            <button
+              onClick={handleSkip}
+              className="text-gray-600 px-8 py-3 rounded-lg font-semibold hover:text-gray-900 hover:bg-gray-100 transition-colors"
+            >
+              Skip for now
+            </button>
             <button
               onClick={handleContinue}
               className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
@@ -552,7 +567,13 @@ export const WorkspaceOnboarding = () => {
         </div>
 
         {/* Continue Button */}
-        <div className="flex justify-end pt-8 mt-8 border-t border-gray-200">
+        <div className="flex justify-between pt-8 mt-8 border-t border-gray-200">
+          <button
+            onClick={handleSkip}
+            className="text-gray-600 px-8 py-3 rounded-lg font-semibold hover:text-gray-900 hover:bg-gray-100 transition-colors"
+          >
+            Skip for now
+          </button>
           <button
             onClick={handleContinue}
             className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
@@ -696,7 +717,13 @@ export const WorkspaceOnboarding = () => {
         </div>
 
         {/* Continue Button */}
-        <div className="flex justify-end pt-8 mt-8 border-t border-gray-200">
+        <div className="flex justify-between pt-8 mt-8 border-t border-gray-200">
+          <button
+            onClick={handleSkip}
+            className="text-gray-600 px-8 py-3 rounded-lg font-semibold hover:text-gray-900 hover:bg-gray-100 transition-colors"
+          >
+            Skip for now
+          </button>
           <button
             onClick={handleContinue}
             className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md hover:shadow-lg"
