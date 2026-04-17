@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Building2, Users, Zap, CheckCircle2, ChevronDown, UserPlus, Download, Info, RefreshCw, LayoutDashboard, Inbox, UserPlus as UserPlusIcon, MessageSquare, ChevronRight } from 'lucide-react';
+import { useSuccessBadge } from '../../../components/index.js';
 
 type TeamSize = '1-5' | '6-20' | '21-50' | '50+';
 type MemberRole = 'Owner' | 'Manager' | 'Agent';
@@ -47,6 +48,7 @@ const roleOptions: MemberRole[] = ['Owner', 'Manager', 'Agent'];
 
 export const WorkspaceOnboarding = () => {
   const navigate = useNavigate();
+  const { showSuccess, SuccessBadgeComponent } = useSuccessBadge();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<OnboardingFormData>({
     businessName: '',
@@ -110,9 +112,19 @@ export const WorkspaceOnboarding = () => {
   const handleContinue = () => {
     if (currentStep < 4) {
       setCurrentStep(currentStep + 1);
+      // Show success message when moving to next step
+      const stepMessages = [
+        'Workspace setup completed successfully!',
+        'Team members invited successfully!',
+        'WhatsApp account connected successfully!',
+      ];
+      if (currentStep <= 3) {
+        showSuccess(stepMessages[currentStep - 1]);
+      }
     } else {
       // Complete onboarding
-      navigate('/workspaces');
+      showSuccess('Workspace onboarding completed!');
+      setTimeout(() => navigate('/workspaces'), 1500);
     }
   };
 
@@ -123,11 +135,6 @@ export const WorkspaceOnboarding = () => {
       // Complete onboarding
       navigate('/workspaces');
     }
-  };
-
-  const handleSaveChanges = () => {
-    // TODO: Implement save changes logic
-    console.log('Saving changes:', formData);
   };
 
   const handleNewMemberChange = (field: keyof NewMemberForm, value: string) => {
@@ -145,6 +152,7 @@ export const WorkspaceOnboarding = () => {
       };
       setTeamMembers([...teamMembers, newTeamMember]);
       setNewMember({ fullName: '', email: '', role: 'Agent' });
+      showSuccess(`Invitation sent to ${newMember.fullName}`, 'Success');
     }
   };
 
@@ -169,7 +177,11 @@ export const WorkspaceOnboarding = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <>
+      {/* Success Badge - Appears on top of everything */}
+      {SuccessBadgeComponent}
+      
+      <div className="min-h-screen bg-gray-50 flex">
       {/* Left Sidebar */}
       <div className="w-80 bg-white border-r border-gray-200 p-8 flex flex-col">
         {/* Header */}
@@ -255,6 +267,7 @@ export const WorkspaceOnboarding = () => {
         </div>
       </div>
     </div>
+    </>
   );
 
   // Step 1: Workspace Setup Component
