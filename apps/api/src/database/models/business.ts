@@ -44,6 +44,7 @@ export interface BusinessResponse {
   status: string;
   createdAt: Date;
   updatedAt: Date;
+  numberOfMembers?: number;
 }
 
 export interface BusinessMemberResponse {

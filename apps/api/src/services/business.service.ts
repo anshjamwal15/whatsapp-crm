@@ -400,8 +400,27 @@ export const businessService = {
           )
         );
 
-      return result.map((row) =>
-        mapBusinessEntityToResponse({
+      // Get member counts for all businesses
+      const businessIds = result.map(b => b.id);
+      const memberCounts = await db
+        .select({
+          businessId: businessMembers.businessId,
+        })
+        .from(businessMembers)
+        .where(
+          and(
+            eq(businessMembers.status, 'active')
+          )
+        );
+
+      // Count members per business
+      const memberCountMap = memberCounts.reduce((acc, member) => {
+        acc[member.businessId] = (acc[member.businessId] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+      return result.map((row) => ({
+        ...mapBusinessEntityToResponse({
           id: row.id,
           name: row.name,
           slug: row.slug,
@@ -416,8 +435,9 @@ export const businessService = {
           status: row.status,
           createdAt: row.createdAt,
           updatedAt: row.updatedAt,
-        })
-      );
+        }),
+        numberOfMembers: memberCountMap[row.id] || 0,
+      }));
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to get owner workspaces: ${error.message}`);
