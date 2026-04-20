@@ -207,7 +207,7 @@ router.get(
  * /api/businesses/{businessId}:
  *   get:
  *     summary: Get a specific business
- *     description: Retrieve a specific business by ID (requires authentication and tenant access)
+ *     description: Retrieve a specific business by ID with all members (requires authentication and tenant access)
  *     tags: [Businesses]
  *     security:
  *       - bearerAuth: []
@@ -220,7 +220,7 @@ router.get(
  *         description: Business ID
  *     responses:
  *       200:
- *         description: Business retrieved successfully
+ *         description: Business retrieved successfully with members
  *         content:
  *           application/json:
  *             schema:
@@ -230,7 +230,21 @@ router.get(
  *                   type: boolean
  *                   example: true
  *                 data:
- *                   $ref: '#/components/schemas/BusinessResponse'
+ *                   allOf:
+ *                     - $ref: '#/components/schemas/BusinessResponse'
+ *                     - type: object
+ *                       properties:
+ *                         members:
+ *                           type: array
+ *                           items:
+ *                             type: object
+ *                             properties:
+ *                               name:
+ *                                 type: string
+ *                                 example: John Doe
+ *                               email:
+ *                                 type: string
+ *                                 example: john@example.com
  *       404:
  *         description: Business not found
  *         content:

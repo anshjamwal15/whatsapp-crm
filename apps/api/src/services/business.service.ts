@@ -113,7 +113,25 @@ export const businessService = {
         return null;
       }
 
-      return mapBusinessEntityToResponse(result[0]);
+      // Get members with name and email
+      const members = await db
+        .select({
+          name: users.name,
+          email: users.email,
+        })
+        .from(businessMembers)
+        .innerJoin(users, eq(businessMembers.userId, users.id))
+        .where(
+          and(
+            eq(businessMembers.businessId, businessId),
+            eq(businessMembers.status, 'active')
+          )
+        );
+
+      const businessResponse = mapBusinessEntityToResponse(result[0]);
+      businessResponse.members = members;
+
+      return businessResponse;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to get business: ${error.message}`);

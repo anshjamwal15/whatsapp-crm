@@ -29,6 +29,11 @@ export interface UpdateBusinessRequest {
   status?: string;
 }
 
+export interface BusinessMemberInfo {
+  name: string;
+  email: string;
+}
+
 export interface BusinessResponse {
   id: string;
   name: string;
@@ -45,6 +50,7 @@ export interface BusinessResponse {
   createdAt: Date;
   updatedAt: Date;
   numberOfMembers?: number;
+  members?: BusinessMemberInfo[];
 }
 
 export interface BusinessMemberResponse {
