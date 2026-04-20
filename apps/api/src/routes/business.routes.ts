@@ -7,9 +7,45 @@ import { CreateBusinessRequest, UpdateBusinessRequest } from '../database/models
 const router: Router = Router();
 
 /**
- * POST /api/businesses
- * Create a new business
- * Requires authentication
+ * @swagger
+ * /api/businesses:
+ *   post:
+ *     summary: Create a new business
+ *     description: Create a new business/workspace (requires authentication)
+ *     tags: [Businesses]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateBusinessRequest'
+ *     responses:
+ *       201:
+ *         description: Business created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/BusinessResponse'
+ *       400:
+ *         description: Bad request - Missing required fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post(
   '/',
@@ -57,9 +93,35 @@ router.post(
 );
 
 /**
- * GET /api/businesses
- * Get all businesses for the current user
- * Requires authentication
+ * @swagger
+ * /api/businesses:
+ *   get:
+ *     summary: Get all businesses for current user
+ *     description: Retrieve all businesses/workspaces for the authenticated user
+ *     tags: [Businesses]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of businesses retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/BusinessResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get(
   '/',
@@ -86,9 +148,35 @@ router.get(
 );
 
 /**
- * GET /api/businesses/owner/workspaces
- * Get all workspaces where user is owner
- * Requires authentication
+ * @swagger
+ * /api/businesses/owner/workspaces:
+ *   get:
+ *     summary: Get all workspaces where user is owner
+ *     description: Retrieve all workspaces where the authenticated user is the owner
+ *     tags: [Businesses]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of owned workspaces retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/BusinessResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get(
   '/owner/workspaces',
@@ -115,9 +203,46 @@ router.get(
 );
 
 /**
- * GET /api/businesses/:businessId
- * Get a specific business
- * Requires authentication and tenant access
+ * @swagger
+ * /api/businesses/{businessId}:
+ *   get:
+ *     summary: Get a specific business
+ *     description: Retrieve a specific business by ID (requires authentication and tenant access)
+ *     tags: [Businesses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Business ID
+ *     responses:
+ *       200:
+ *         description: Business retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/BusinessResponse'
+ *       404:
+ *         description: Business not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get(
   '/:businessId',
@@ -153,9 +278,52 @@ router.get(
 );
 
 /**
- * PUT /api/businesses/:businessId
- * Update a business
- * Requires authentication, tenant access, and admin role
+ * @swagger
+ * /api/businesses/{businessId}:
+ *   put:
+ *     summary: Update a business
+ *     description: Update business information (requires authentication, tenant access, and admin role)
+ *     tags: [Businesses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Business ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateBusinessRequest'
+ *     responses:
+ *       200:
+ *         description: Business updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/BusinessResponse'
+ *       403:
+ *         description: Forbidden - Only admins can update business information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.put(
   '/:businessId',
@@ -205,9 +373,40 @@ router.put(
 );
 
 /**
- * DELETE /api/businesses/:businessId
- * Delete a business (soft delete)
- * Requires authentication, tenant access, and admin role
+ * @swagger
+ * /api/businesses/{businessId}:
+ *   delete:
+ *     summary: Delete a business
+ *     description: Delete a business (soft delete) - requires authentication, tenant access, and admin role
+ *     tags: [Businesses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Business ID
+ *     responses:
+ *       200:
+ *         description: Business deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SuccessResponse'
+ *       403:
+ *         description: Forbidden - Only admins can delete businesses
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.delete(
   '/:businessId',
@@ -244,9 +443,42 @@ router.delete(
 );
 
 /**
- * GET /api/businesses/:businessId/members
- * Get business members
- * Requires authentication and tenant access
+ * @swagger
+ * /api/businesses/{businessId}/members:
+ *   get:
+ *     summary: Get business members
+ *     description: Retrieve all members of a business (requires authentication and tenant access)
+ *     tags: [Businesses]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: businessId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Business ID
+ *     responses:
+ *       200:
+ *         description: List of business members retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/MemberResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.get(
   '/:businessId/members',

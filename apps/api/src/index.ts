@@ -3,6 +3,7 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import { captureRawBody, errorHandler, errorInterceptor, networkInterceptor } from './middlewares';
 import { corsOptionsDev } from './config/cors';
+import { setupSwagger } from './config/swagger';
 import apiRoutes from './routes';
 
 const app: Express = express();
@@ -16,6 +17,9 @@ app.use(cors(corsOptionsDev));
 app.use(express.json({ verify: captureRawBody }));
 app.use(networkInterceptor);
 app.use(express.urlencoded({ extended: true }));
+
+// Setup Swagger Documentation
+setupSwagger(app);
 
 // Health check endpoint
 app.get('/health', (_req: Request, res: Response): void => {
