@@ -1,9 +1,11 @@
 import { Plus, Clock, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppLayout } from '../../../layouts/AppLayout.js';
 import { getAccessToken } from '../../../lib/api.js';
 import { WorkspaceSettingsModal } from '../components/WorkspaceSettingsModal.js';
+import { useWorkspace } from '../../../hooks/index.js';
+import { useSuccessBadge } from '../../../components/index.js';
 
 const API_BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) || 'http://localhost:3000/api';
 
@@ -97,11 +99,16 @@ const getTimeAgo = (dateString: string): string => {
 
 export const Workspaces = () => {
   const navigate = useNavigate();
+  const { setWorkspace, activeWorkspaceId } = useWorkspace();
   const [workspaces, setWorkspaces] = useState<Workspace[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedWorkspace, setSelectedWorkspace] = useState<Workspace | null>(null);
+  const { showSuccess, SuccessBadgeComponent } = useSuccessBadge();
+
+  // Ref to track pending single-click timer per card
+  const clickTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const fetchWorkspaces = async () => {
@@ -168,11 +175,27 @@ export const Workspaces = () => {
   };
 
   const handleWorkspaceClick = (workspaceId: string) => {
-    const workspace = workspaces.find((ws) => ws.id === workspaceId);
-    if (workspace) {
-      setSelectedWorkspace(workspace);
-      setIsModalOpen(true);
+    // If a click is already pending, this is a double-click — cancel single-click and open settings
+    if (clickTimerRef.current) {
+      clearTimeout(clickTimerRef.current);
+      clickTimerRef.current = null;
+      const workspace = workspaces.find((ws) => ws.id === workspaceId);
+      if (workspace) {
+        setSelectedWorkspace(workspace);
+        setIsModalOpen(true);
+      }
+      return;
     }
+
+    // First click — wait 250ms to see if a second click follows
+    clickTimerRef.current = setTimeout(() => {
+      clickTimerRef.current = null;
+      const workspace = workspaces.find((ws) => ws.id === workspaceId);
+      if (workspace) {
+        setWorkspace({ id: workspace.id, name: workspace.name, logoUrl: workspace.logoUrl });
+        showSuccess(`Switched to ${workspace.name}`, 'Workspace Changed');
+      }
+    }, 250);
   };
 
   const handleCloseModal = () => {
@@ -182,9 +205,6 @@ export const Workspaces = () => {
 
   return (
     <AppLayout
-      workspaceName="Architect CRM"
-      workspaceLabel="Active Workspace"
-      workspaceIcon="A"
       onNewBroadcast={() => console.log('New Broadcast clicked')}
       onHelpCenter={() => console.log('Help Center clicked')}
       onNotificationClick={() => console.log('Notifications clicked')}
@@ -198,6 +218,9 @@ export const Workspaces = () => {
           <p className="text-gray-600 text-lg">
             Architect your collaborative environment. Switch between dedicated project engines or
             create a new perimeter for your team.
+          </p>
+          <p className="text-sm text-gray-400 mt-2">
+            Tap to switch workspace · Double-tap to open settings
           </p>
         </div>
 
@@ -240,12 +263,26 @@ export const Workspaces = () => {
             </button>
 
             {/* Workspace Cards */}
-            {workspaces.map((workspace) => (
+            {workspaces.map((workspace) => {
+              const isActive = workspace.id === activeWorkspaceId;
+              return (
               <button
                 key={workspace.id}
                 onClick={() => handleWorkspaceClick(workspace.id)}
-                className="bg-white rounded-xl p-6 hover:shadow-lg transition-all duration-200 border border-gray-200 hover:border-blue-300 flex flex-col min-h-[280px] text-left group"
+                className={`rounded-xl p-6 transition-all duration-200 border flex flex-col min-h-[280px] text-left group relative
+                  ${isActive
+                    ? 'bg-blue-50 border-blue-400 shadow-md ring-2 ring-blue-300 ring-offset-1'
+                    : 'bg-white border-gray-200 hover:shadow-lg hover:border-blue-300'
+                  }`}
               >
+                {/* Active indicator pill */}
+                {isActive && (
+                  <div className="absolute top-3 right-3 flex items-center gap-1 bg-blue-600 text-white text-xs font-semibold px-2 py-0.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white inline-block" />
+                    Active
+                  </div>
+                )}
+
                 {/* Icon and Badge */}
                 <div className="flex items-start justify-between mb-4">
                   {workspace.logoUrl ? (
@@ -277,7 +314,7 @@ export const Workspaces = () => {
                 </div>
 
                 {/* Workspace Name */}
-                <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                <h3 className={`text-lg font-semibold mb-2 transition-colors ${isActive ? 'text-blue-700' : 'text-gray-900 group-hover:text-blue-600'}`}>
                   {workspace.name}
                 </h3>
 
@@ -310,11 +347,15 @@ export const Workspaces = () => {
                   </div>
                 </div>
               </button>
-            ))}
+              );
+            })}
           </div>
         )}
         </div>
       </div>
+
+      {/* Success Badge */}
+      {SuccessBadgeComponent}
 
       {/* Workspace Settings Modal */}
       {selectedWorkspace && (

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { LayoutGrid, Mail, Users, Zap, BarChart3, HelpCircle, Plus, ChevronDown, LogOut, Briefcase } from 'lucide-react';
+import { LayoutGrid, Mail, Users, Zap, BarChart3, HelpCircle, Plus, ChevronDown, LogOut, Briefcase, UserCog } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks';
 
@@ -57,6 +57,12 @@ const defaultItems: SidebarItem[] = [
     label: 'Analytics',
     icon: <BarChart3 className="w-5 h-5" />,
     href: '/analytics',
+  },
+  {
+    id: 'team',
+    label: 'Team Management',
+    icon: <UserCog className="w-5 h-5" />,
+    href: '/team',
   },
 ];
 

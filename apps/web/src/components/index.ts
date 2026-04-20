@@ -5,3 +5,5 @@ export { Sidebar } from './Sidebar.js';
 export { Header } from './Header.js';
 export { SuccessBadge, useSuccessBadge } from './SuccessBadge.js';
 export { ErrorBadge, useErrorBadge } from './ErrorBadge.js';
+export { AddTeamMemberModal } from './AddTeamMemberModal.js';
+export type { AddTeamMemberFormData, TeamMemberRole } from './AddTeamMemberModal.js';

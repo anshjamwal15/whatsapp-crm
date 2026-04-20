@@ -4,6 +4,7 @@ import { store } from '@/store';
 import { AuthLayout, ResetPassword } from '@/features/auth';
 import { Dashboard } from '@/features/home';
 import { Workspaces, WorkspaceOnboarding } from '@/features/workspaces';
+import { TeamManagement } from '@/features/team';
 import { ProtectedRoute } from '@/components';
 
 function App() {
@@ -34,6 +35,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/team"
+            element={
+              <ProtectedRoute>
+                <TeamManagement />
               </ProtectedRoute>
             }
           />

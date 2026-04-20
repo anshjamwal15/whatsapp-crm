@@ -1,11 +1,9 @@
 import { ReactNode } from 'react';
 import { Sidebar, Header } from '@/components';
+import { useWorkspace } from '@/hooks';
 
 interface AppLayoutProps {
   children: ReactNode;
-  workspaceName?: string;
-  workspaceLabel?: string;
-  workspaceIcon?: string;
   showSearch?: boolean;
   searchPlaceholder?: string;
   onNewBroadcast?: () => void;
@@ -15,14 +13,11 @@ interface AppLayoutProps {
 }
 
 /**
- * Main app layout wrapper with sidebar and header
- * Use this component to wrap any page that needs the sidebar and header
+ * Main app layout wrapper with sidebar and header.
+ * Workspace name and ID are read from the global Redux store — no need to pass them as props.
  */
 export const AppLayout = ({
   children,
-  workspaceName = 'Precision HQ',
-  workspaceLabel = 'ACTIVE WORKSPACE',
-  workspaceIcon = 'P',
   showSearch = true,
   searchPlaceholder = 'Search contacts or conversations...',
   onNewBroadcast,
@@ -30,6 +25,12 @@ export const AppLayout = ({
   onNotificationClick,
   onSettingsClick,
 }: AppLayoutProps) => {
+  const { activeWorkspaceName } = useWorkspace();
+
+  const workspaceName = activeWorkspaceName ?? 'Select a workspace';
+  const workspaceLabel = activeWorkspaceName ? 'ACTIVE WORKSPACE' : 'NO WORKSPACE';
+  const workspaceIcon = workspaceName.charAt(0).toUpperCase();
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}

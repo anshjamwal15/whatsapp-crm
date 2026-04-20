@@ -18,9 +18,6 @@ export const Dashboard = () => {
 
   return (
     <AppLayout
-      workspaceName="Architect CRM"
-      workspaceLabel="Active Workspace"
-      workspaceIcon="A"
       onNewBroadcast={() => console.log('New Broadcast clicked')}
       onHelpCenter={() => console.log('Help Center clicked')}
       onNotificationClick={() => console.log('Notifications clicked')}
