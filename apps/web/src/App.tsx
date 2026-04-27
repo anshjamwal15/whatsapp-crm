@@ -5,6 +5,7 @@ import { AuthLayout, ResetPassword } from '@/features/auth';
 import { Dashboard } from '@/features/home';
 import { Workspaces, WorkspaceOnboarding } from '@/features/workspaces';
 import { TeamManagement } from '@/features/team';
+import { Join } from '@/features/join';
 import { ProtectedRoute } from '@/components';
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
     <Provider store={store}>
       <Router>
         <Routes>
+          <Route path="/join" element={<Join />} />
           <Route path="/auth" element={<AuthLayout />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route
